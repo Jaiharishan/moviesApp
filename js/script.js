@@ -5,16 +5,19 @@ const apiKey = '8a97f7865d4eff98246cbfec281e792f';
 const url = 'https://api.themoviedb.org/3/search/movie?api_key=8a97f7865d4eff98246cbfec281e792f';
 const imageUrl = 'https://image.tmdb.org/t/p/w500';
 
+// api endpoint for moviedb
 const MOVIE_DB_ENDPOINT = 'https://api.themoviedb.org';
+
+// api endpoint for movie image in moviedb
 const MOVIE_DB_IMAGE_ENDPOINT = 'https://image.tmdb.org/t/p/w500';
-const DEFAULT_POST_IMAGE = 'https://via.placeholder.com/150';
 
 
+
+// to generate dynamic urls
 function generateMovieDBUrl(path) {
     const url = `${MOVIE_DB_ENDPOINT}/3${path}?api_key=${apiKey}`;
     return url;
 }
-
 
 
 // to get the cast of the movie
@@ -23,13 +26,16 @@ function castUrl(movie_id) {
 }
 
 
-// search button
+
+// all document elements are defined here
 const searchButton = document.querySelector('#search');
 const moviesInput = document.querySelector('#moviesValue');
 const moviesSearchContainer = document.querySelector('#movies-searchable');
 const moviesContainer = document.querySelector('#movies-container');
 
 
+
+// to generate image of searched movies
 function moviesSection(movies) {
     return movies.map(movie => {
         if (movie.poster_path) {
@@ -45,7 +51,8 @@ function moviesSection(movies) {
 }
 
 
-// to use fetch api more clearly
+
+// to use fetch api more simply
 function requestMovies(url, success, error) {
     fetch(url)
         .then(res => res.json())
@@ -58,7 +65,6 @@ function requestMovies(url, success, error) {
 function errorHandle(error) {
     console.log(error);
 }
-
 
 
 // for movie casts
@@ -82,7 +88,6 @@ function movieCasts(movies) {
         
 
         return castsElement;
-            
         
     })
         
@@ -104,13 +109,14 @@ function createMovies(movies) {
     // casts of all movies
     let moviesCasts = movieCasts(movies);
 
-    // console.log(movieImgs);
-    // console.log(moviesCasts);
 
+    // for loop to iterate every movie and display individually
     for (let i = 0; i < movieImgs.length; i++) {
         let movieDiv = document.createElement('div');
 
-        console.log('M' + movies[i].id)
+        console.log('M' + movies[i].id);
+        // modal id is create using movie id and M in front of it
+
         // movieimg
         movieImgs[i].setAttribute('data-bs-toggle', 'modal');
         movieImgs[i].setAttribute('data-bs-target', '#' + 'M' + movies[i].id);
@@ -146,13 +152,31 @@ function createMovies(movies) {
         modalHeader.appendChild(h5);
         modalHeader.appendChild(closeBtn);
 
-        // header done
 
+
+        // modal body
         let modalBody = document.createElement('div');
         modalBody.setAttribute('class', 'modal-body');
-        console.log(moviesCasts[i]);
-        modalBody.appendChild(moviesCasts[i]);
+
+        // movie name
+        let movieName = document.createElement('div');
+        movieName.textContent = movies[i].title;
+        movieName.setAttribute('class', 'h2 mb-3');
         
+        // adding ratings
+        let ratings = document.createElement('div');
+        ratings.textContent = movies[i].vote_average + '/10';
+        ratings.setAttribute('class', 'btn btn-primary text-light mb-3')
+
+        modalBody.appendChild(ratings);
+        let castsHeading = document.createElement('h2');
+        castsHeading.textContent = 'Casts';
+
+        modalBody.appendChild(movieName);
+
+        modalBody.appendChild(castsHeading);
+        
+        modalBody.appendChild(moviesCasts[i]);
 
 
         // modal footer
@@ -215,6 +239,7 @@ function searchMovies(value) {
 }
 
 
+// event listener to check search submission
 searchButton.addEventListener('click', (e) => {
     e.preventDefault();
     console.log(moviesInput.value);
@@ -228,7 +253,7 @@ searchButton.addEventListener('click', (e) => {
 
 
 
-
+// function to create default image container
 function createImageContainer(imageUrl, id) {
     const tempDiv = document.createElement('div');
     tempDiv.setAttribute('class', 'imageContainer');
@@ -276,9 +301,7 @@ function searchPopularMovie() {
 
 
 
-
-
-// to create header
+// to create header for a section
 function createSectionHeader(title) {
     const header = document.createElement('h2');
     header.setAttribute('class', 'text-light');
@@ -287,6 +310,8 @@ function createSectionHeader(title) {
 }
 
 
+
+// to create a movie container
 function createMovieContainer(section) {
     const movieElement = document.createElement('div');
     movieElement.setAttribute('class', 'movie mt-5');
@@ -299,6 +324,7 @@ function createMovieContainer(section) {
 }
 
 
+
 // to render and show the movie image
 function renderMovies(data) {
     const moviesBlock = generateMoviesBlock(data);
@@ -308,7 +334,30 @@ function renderMovies(data) {
 }
 
 
-// to generate the movie section
+// to get the imdb rating of a movie
+function requestImdb(name) {
+    let nameArray = name.split(' ');
+    let rating;
+    let ourName = nameArray.join('_');
+    fetch(`http://www.omdbapi.com/?t=${ourName}&apikey=7b1e4ad3`)
+        .then(res => res.json())
+        .then(data => {
+            rating = data.imdbRating;
+            // console.log(rating);
+            
+        })
+        .catch(err => console.log(err))
+    
+    if (rating) return rating
+    
+}
+
+let x = requestImdb('free guy')
+console.log(x);
+
+
+
+// to generate a movie section
 function generateMoviesBlock(data) {
     const movies = data.results;
     const section = document.createElement('section');
@@ -318,9 +367,14 @@ function generateMoviesBlock(data) {
 
     for (let i = 0; i < movies.length; i++) {
 
+        let imdbRating = requestImdb(movies[i].title);
+        // console.log(imdbRating);
+
         // getting path and id of the movie
         const { poster_path, id } = movies[i];
 
+
+        // if image exists
         if (poster_path) {
             const imageUrl = MOVIE_DB_IMAGE_ENDPOINT + poster_path;
     
@@ -345,11 +399,12 @@ function generateMoviesBlock(data) {
             let modalContent = document.createElement('div');
             modalContent.setAttribute('class', 'modal-content');
 
+
             // modal header
             let modalHeader = document.createElement('div');
             modalHeader.setAttribute('class', 'modal-header');
 
-            // inside header h5
+            // inside header
             let h5 = document.createElement('h5');
             h5.setAttribute('class', 'modal-title');
             h5.textContent = 'Casts and ratings';
@@ -362,14 +417,43 @@ function generateMoviesBlock(data) {
             modalHeader.appendChild(h5);
             modalHeader.appendChild(closeBtn);
 
-            // header done
 
+            // modal body
             let modalBody = document.createElement('div');
             modalBody.setAttribute('class', 'modal-body');
-            modalBody.appendChild(moviesCasts[i]);
+
+            // movie name
+            let movieName = document.createElement('div');
+            movieName.textContent = movies[i].title;
+            movieName.setAttribute('class', 'h2 mb-3');
             
+            // adding ratings
+            let ratings = document.createElement('div');
+            ratings.textContent = movies[i].vote_average + '/10';
+            ratings.setAttribute('class', 'btn btn-primary text-light mb-3')
+
+            modalBody.appendChild(ratings);
 
 
+            // adding imdb rating
+            let imdbRatingDiv = document.createElement('div');
+            imdbRatingDiv.textContent = imdbRating;
+            imdbRatingDiv.setAttribute('class', 'btn btn-primary text-light mb-3');
+
+            modalBody.appendChild(imdbRatingDiv);
+
+
+            // movie casts
+            let castsHeading = document.createElement('h2');
+            castsHeading.textContent = 'Casts';
+
+            modalBody.appendChild(movieName);
+
+            modalBody.appendChild(castsHeading);
+            
+            modalBody.appendChild(moviesCasts[i]);
+
+            
             // modal footer
             let modalFooter = document.createElement('div');
             modalFooter.setAttribute('class', 'modal-footer');
@@ -383,6 +467,7 @@ function generateMoviesBlock(data) {
             modalFooter.appendChild(footerCloseBtn);
 
 
+            // appending child elements
             modalContent.appendChild(modalHeader);
             modalContent.appendChild(modalBody);
             modalContent.appendChild(modalFooter);
@@ -400,8 +485,11 @@ function generateMoviesBlock(data) {
 
 
 
-// displaying all default movie suggestions
+// displaying all default movie suggestions as sections
 getTopRatedMovies();
+
 getTrendingMovies();
+
 searchUpcomingMovies();
+
 searchPopularMovie();
