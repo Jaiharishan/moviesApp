@@ -314,6 +314,8 @@ function generateMoviesBlock(data) {
     const section = document.createElement('section');
     section.setAttribute('class', 'section');
 
+    let moviesCasts = movieCasts(movies);
+
     for (let i = 0; i < movies.length; i++) {
 
         // getting path and id of the movie
@@ -324,6 +326,71 @@ function generateMoviesBlock(data) {
     
             const imageContainer = createImageContainer(imageUrl, id);
             section.appendChild(imageContainer);
+
+            // movieimg
+            imageContainer.setAttribute('data-bs-toggle', 'modal');
+            imageContainer.setAttribute('data-bs-target', '#' + 'M' + id);
+
+            // creating modal
+            let modalContainer = document.createElement('div');
+            modalContainer.setAttribute('class', 'modal fade');
+            modalContainer.setAttribute('id', 'M' + id);
+            modalContainer.setAttribute('tabindex', '-1');
+
+            // modal dialog
+            let modalDialog = document.createElement('div');
+            modalDialog.setAttribute('class', 'modal-dialog');
+
+            // modal content
+            let modalContent = document.createElement('div');
+            modalContent.setAttribute('class', 'modal-content');
+
+            // modal header
+            let modalHeader = document.createElement('div');
+            modalHeader.setAttribute('class', 'modal-header');
+
+            // inside header h5
+            let h5 = document.createElement('h5');
+            h5.setAttribute('class', 'modal-title');
+            h5.textContent = 'Casts and ratings';
+
+            let closeBtn = document.createElement('button');
+            closeBtn.setAttribute('class', 'btn-close');
+            closeBtn.setAttribute('type', 'button');
+            closeBtn.setAttribute('data-bs-dismiss', 'modal');
+
+            modalHeader.appendChild(h5);
+            modalHeader.appendChild(closeBtn);
+
+            // header done
+
+            let modalBody = document.createElement('div');
+            modalBody.setAttribute('class', 'modal-body');
+            modalBody.appendChild(moviesCasts[i]);
+            
+
+
+            // modal footer
+            let modalFooter = document.createElement('div');
+            modalFooter.setAttribute('class', 'modal-footer');
+
+            let footerCloseBtn = document.createElement('button');
+            footerCloseBtn.setAttribute('class', 'btn btn-secondary');
+            footerCloseBtn.setAttribute('type', 'button');
+            footerCloseBtn.setAttribute('data-bs-dismiss', 'modal');
+            footerCloseBtn.textContent = 'close';
+
+            modalFooter.appendChild(footerCloseBtn);
+
+
+            modalContent.appendChild(modalHeader);
+            modalContent.appendChild(modalBody);
+            modalContent.appendChild(modalFooter);
+
+            modalDialog.appendChild(modalContent);
+            modalContainer.appendChild(modalDialog);
+
+            moviesContainer.appendChild(modalContainer);
         }
     }
 
