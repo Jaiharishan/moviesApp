@@ -5,6 +5,17 @@ const apiKey = '8a97f7865d4eff98246cbfec281e792f';
 const url = 'https://api.themoviedb.org/3/search/movie?api_key=8a97f7865d4eff98246cbfec281e792f';
 const imageUrl = 'https://image.tmdb.org/t/p/w500';
 
+const MOVIE_DB_ENDPOINT = 'https://api.themoviedb.org';
+const MOVIE_DB_IMAGE_ENDPOINT = 'https://image.tmdb.org/t/p/w500';
+const DEFAULT_POST_IMAGE = 'https://via.placeholder.com/150';
+
+
+function generateMovieDBUrl(path) {
+    const url = `${MOVIE_DB_ENDPOINT}/3${path}?api_key=${apiKey}`;
+    return url;
+}
+
+
 
 // to get the cast of the movie
 function castUrl(movie_id) {
@@ -16,6 +27,7 @@ function castUrl(movie_id) {
 const searchButton = document.querySelector('#search');
 const moviesInput = document.querySelector('#moviesValue');
 const moviesSearchContainer = document.querySelector('#movies-searchable');
+const moviesContainer = document.querySelector('#movies-container');
 
 
 function moviesSection(movies) {
@@ -34,7 +46,7 @@ function moviesSection(movies) {
 
 
 // to use fetch api more clearly
-function fetchMovies(url, success, error) {
+function requestMovies(url, success, error) {
     fetch(url)
         .then(res => res.json())
         .then(success)
@@ -52,7 +64,6 @@ function errorHandle(error) {
 // for movie casts
 function movieCasts(movies) {
     return movies.map(movie => {
-        let casts = [];
         let castsElement = document.createElement('div');
 
         // fetching cast details from the api
@@ -199,7 +210,7 @@ function searchAndGenerateMovies(data) {
 function searchMovies(value) {
     // const path = '/search/movie';
     const ourUrl = url + '&query=' + value;
-    fetchMovies(ourUrl, searchAndGenerateMovies, errorHandle)
+    requestMovies(ourUrl, searchAndGenerateMovies, errorHandle)
 
 }
 
@@ -214,3 +225,116 @@ searchButton.addEventListener('click', (e) => {
     // emptying the search bar
     moviesInput.value = '';
 })
+
+
+
+
+function createImageContainer(imageUrl, id) {
+    const tempDiv = document.createElement('div');
+    tempDiv.setAttribute('class', 'imageContainer');
+    tempDiv.setAttribute('data-id', id);
+
+    const movieElement = `
+        <img src="${imageUrl}" alt="" data-movie-id="${id}">
+    `;
+    tempDiv.innerHTML = movieElement;
+
+    return tempDiv;
+}
+
+
+// to show to rated movies
+function getTopRatedMovies() {
+    const url = generateMovieDBUrl(`/movie/top_rated`);
+    const render = renderMovies.bind({ title: 'Top Rated Movies' })
+    requestMovies(url, render, errorHandle);
+}
+
+
+// to get trending movies
+function getTrendingMovies() {
+    const url = generateMovieDBUrl('/trending/movie/day');
+    const render = renderMovies.bind({ title: 'Trending Movies' })
+    requestMovies(url, render, errorHandle);
+}
+
+
+// for showing yet to release movies
+function searchUpcomingMovies() {
+    const url = generateMovieDBUrl('/movie/upcoming');
+    const render = renderMovies.bind({ title: 'Upcoming Movies' })
+    requestMovies(url, render, errorHandle);
+}
+
+
+// to show popular movie
+function searchPopularMovie() {
+    const url = generateMovieDBUrl('/movie/popular');
+    const render = renderMovies.bind({ title: 'Popular Movies' });
+    requestMovies(url, render, errorHandle);
+}
+
+
+
+
+
+// to create header
+function createSectionHeader(title) {
+    const header = document.createElement('h2');
+    header.setAttribute('class', 'text-light');
+    header.innerHTML = title;
+    return header;
+}
+
+
+function createMovieContainer(section) {
+    const movieElement = document.createElement('div');
+    movieElement.setAttribute('class', 'movie mt-5');
+
+    const template = ``;
+
+    movieElement.innerHTML = template;
+    movieElement.insertBefore(section, movieElement.firstChild);
+    return movieElement;
+}
+
+
+// to render and show the movie image
+function renderMovies(data) {
+    const moviesBlock = generateMoviesBlock(data);
+    const header = createSectionHeader(this.title);
+    moviesBlock.insertBefore(header, moviesBlock.firstChild);
+    moviesContainer.appendChild(moviesBlock);
+}
+
+
+// to generate the movie section
+function generateMoviesBlock(data) {
+    const movies = data.results;
+    const section = document.createElement('section');
+    section.setAttribute('class', 'section');
+
+    for (let i = 0; i < movies.length; i++) {
+
+        // getting path and id of the movie
+        const { poster_path, id } = movies[i];
+
+        if (poster_path) {
+            const imageUrl = MOVIE_DB_IMAGE_ENDPOINT + poster_path;
+    
+            const imageContainer = createImageContainer(imageUrl, id);
+            section.appendChild(imageContainer);
+        }
+    }
+
+    const movieSectionAndContent = createMovieContainer(section);
+    return movieSectionAndContent;
+}
+
+
+
+// displaying all default movie suggestions
+getTopRatedMovies();
+getTrendingMovies();
+searchUpcomingMovies();
+searchPopularMovie();
