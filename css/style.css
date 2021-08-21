@@ -1,0 +1,22 @@
+body {
+    background: rgb(22, 22, 22);
+}
+
+/* setting image width */
+section img {
+    width:200px;
+    transition: .3s all;
+}
+
+.section {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+}
+
+img:hover {
+    margin-left:0 40px;
+    transform: scale(1.125);
+    cursor: pointer;
+
+}
