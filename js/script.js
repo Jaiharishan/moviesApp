@@ -169,6 +169,19 @@ function createMovies(movies) {
         ratings.setAttribute('class', 'btn btn-primary text-light mb-3')
 
         modalBody.appendChild(ratings);
+
+
+        // adding imdb rating
+        let imdbRatingDiv = document.createElement('div');
+
+        // getting the rating and adding it to imdbRatingDiv
+        requestImdb(movies[i].title, imdbRatingDiv);
+        
+        imdbRatingDiv.setAttribute('class', 'btn btn-primary mx-2 text-light mb-3');
+
+        modalBody.appendChild(imdbRatingDiv);
+
+        // movie casts
         let castsHeading = document.createElement('h2');
         castsHeading.textContent = 'Casts';
 
@@ -177,6 +190,7 @@ function createMovies(movies) {
         modalBody.appendChild(castsHeading);
         
         modalBody.appendChild(moviesCasts[i]);
+
 
 
         // modal footer
@@ -204,7 +218,6 @@ function createMovies(movies) {
 
         // appending to movieDiv
         movieDiv.appendChild(movieImgs[i]);
-        // movieDiv.appendChild(moviesCasts[i]);
 
         // movie image on click should show a modal containinf casts
 
@@ -335,7 +348,7 @@ function renderMovies(data) {
 
 
 // to get the imdb rating of a movie
-function requestImdb(name) {
+function requestImdb(name, elem) {
     let nameArray = name.split(' ');
     let rating;
     let ourName = nameArray.join('_');
@@ -343,17 +356,10 @@ function requestImdb(name) {
         .then(res => res.json())
         .then(data => {
             rating = data.imdbRating;
-            // console.log(rating);
-            
+            elem.textContent = rating + '/10';            
         })
         .catch(err => console.log(err))
-    
-    if (rating) return rating
-    
 }
-
-let x = requestImdb('free guy')
-console.log(x);
 
 
 
@@ -437,8 +443,11 @@ function generateMoviesBlock(data) {
 
             // adding imdb rating
             let imdbRatingDiv = document.createElement('div');
-            imdbRatingDiv.textContent = imdbRating;
-            imdbRatingDiv.setAttribute('class', 'btn btn-primary text-light mb-3');
+
+            // getting the rating and adding it to imdbRatingDiv
+            requestImdb(movies[i].title, imdbRatingDiv);
+            
+            imdbRatingDiv.setAttribute('class', 'btn btn-primary mx-2 text-light mb-3');
 
             modalBody.appendChild(imdbRatingDiv);
 
