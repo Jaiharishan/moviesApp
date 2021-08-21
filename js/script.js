@@ -25,9 +25,7 @@ function moviesSection(movies) {
             let movieImg = document.createElement('img');
             movieImg.src = imageUrl + movie.poster_path;
             movieImg.setAttribute('data-movie-id', movie.id);
-            // return `
-            //         <img src=${imageUrl + movie.poster_path} data-movie-id=${movie.id}>
-            //     `  
+
             return movieImg
         }
         
@@ -43,6 +41,8 @@ function fetchMovies(url, success, error) {
         .catch(error)
 }
 
+
+// error function
 function errorHandle(error) {
     console.log(error);
 }
@@ -54,38 +54,22 @@ function movieCasts(movies) {
     return movies.map(movie => {
         let casts = [];
         let castsElement = document.createElement('div');
+
         // fetching cast details from the api
         fetch(castUrl(movie.id))
             .then(res => res.json())
             .then(data => {
-
-                    // console.log(casts);
-                    
 
                     data.cast.forEach(movie_cast => {
                         
                         let castinfo = document.createElement('p');
                         castinfo.innerHTML = movie_cast.original_name + ' as ' + movie_cast.character;
                         castsElement.appendChild(castinfo);
-                        console.log(castinfo);
-                        // casts.push([movie_cast.original_name, movie_cast.character]);
                     });
-
-                    
-
-                    // console.log(casts);
-                    // casts.forEach(cast => {
-                    //     let castinfo = document.createElement('p');
-                    //     castinfo.innerHTML = cast[0] + ' as ' + cast[1];
-                    //     console.log(castinfo);
-                    //     castsElement.appendChild(castinfo);
-                    // });
-
-
             })
             .catch(err => console.log(err));
         
-            
+
         return castsElement;
             
         
@@ -102,7 +86,11 @@ function createMovies(movies) {
     // the section where all searched movies placed
     let moviesSectionElm = document.createElement('section');
     moviesSectionElm.setAttribute('class', 'section');
+
+    // images of all movies
     let movieImgs = moviesSection(movies);
+
+    // casts of all movies
     let moviesCasts = movieCasts(movies);
 
     // console.log(movieImgs);
@@ -110,15 +98,84 @@ function createMovies(movies) {
 
     for (let i = 0; i < movieImgs.length; i++) {
         let movieDiv = document.createElement('div');
+
+        console.log('M' + movies[i].id)
+        // movieimg
+        movieImgs[i].setAttribute('data-bs-toggle', 'modal');
+        movieImgs[i].setAttribute('data-bs-target', '#' + 'M' + movies[i].id);
+
+        // creating modal
+        let modalContainer = document.createElement('div');
+        modalContainer.setAttribute('class', 'modal fade');
+        modalContainer.setAttribute('id', 'M' + movies[i].id);
+        modalContainer.setAttribute('tabindex', '-1');
+
+        // modal dialog
+        let modalDialog = document.createElement('div');
+        modalDialog.setAttribute('class', 'modal-dialog');
+
+        // modal content
+        let modalContent = document.createElement('div');
+        modalContent.setAttribute('class', 'modal-content');
+
+        // modal header
+        let modalHeader = document.createElement('div');
+        modalHeader.setAttribute('class', 'modal-header');
+
+        // inside header h5
+        let h5 = document.createElement('h5');
+        h5.setAttribute('class', 'modal-title');
+        h5.textContent = 'Casts and ratings';
+
+        let closeBtn = document.createElement('button');
+        closeBtn.setAttribute('class', 'btn-close');
+        closeBtn.setAttribute('type', 'button');
+        closeBtn.setAttribute('data-bs-dismiss', 'modal');
+
+        modalHeader.appendChild(h5);
+        modalHeader.appendChild(closeBtn);
+
+        // header done
+
+        let modalBody = document.createElement('div');
+        modalBody.setAttribute('class', 'modal-body');
+        console.log(moviesCasts[i]);
+        modalBody.appendChild(moviesCasts[i]);
+        
+
+
+        // modal footer
+        let modalFooter = document.createElement('div');
+        modalFooter.setAttribute('class', 'modal-footer');
+
+        let footerCloseBtn = document.createElement('button');
+        footerCloseBtn.setAttribute('class', 'btn btn-secondary');
+        footerCloseBtn.setAttribute('type', 'button');
+        footerCloseBtn.setAttribute('data-bs-dismiss', 'modal');
+        footerCloseBtn.textContent = 'close';
+
+        modalFooter.appendChild(footerCloseBtn);
+
+
+        modalContent.appendChild(modalHeader);
+        modalContent.appendChild(modalBody);
+        modalContent.appendChild(modalFooter);
+
+        modalDialog.appendChild(modalContent);
+        modalContainer.appendChild(modalDialog);
+
+        moviesSearchContainer.appendChild(modalContainer);
+
+
+        // appending to movieDiv
         movieDiv.appendChild(movieImgs[i]);
-        movieDiv.appendChild(moviesCasts[i]);
+        // movieDiv.appendChild(moviesCasts[i]);
+
+        // movie image on click should show a modal containinf casts
+
+
         moviesSectionElm.appendChild(movieDiv);
     }
-    // movieImgs.forEach(movieImg => {
-    //     moviesSectionElm.appendChild(movieImg)
-    // })
-
-    // console.log(movieCasts(movies));
 
     movieElement.appendChild(moviesSectionElm);
     return movieElement;
@@ -147,13 +204,11 @@ function searchMovies(value) {
 }
 
 
-
 searchButton.addEventListener('click', (e) => {
     e.preventDefault();
     console.log(moviesInput.value);
     const value = moviesInput.value;
 
-    
     searchMovies(value);
 
     // emptying the search bar
